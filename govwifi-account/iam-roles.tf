@@ -404,3 +404,28 @@ resource "aws_iam_role_policy" "SNSSuccessFeedback_oneClick_SNSSuccessFeedback_1
 POLICY
 
 }
+
+
+resource "aws_iam_role" "AWSServiceRoleForCloudWatchForCybersecurity" {
+  name        = "AWSServiceRoleForCloudWatchForCybersecurity"
+  path        = "/aws-service-role/application-insights.amazonaws.com/"
+  description = "Allows Kinesis Firehose and Lambda to assume CloudWatch-AppInsights role to send data to Kinesis Data Stream from Cloudwatch Logs for CyberSecurity Team."
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "application-insights.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+
+}
