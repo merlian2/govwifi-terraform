@@ -419,7 +419,7 @@ resource "aws_iam_role" "AWSServiceRoleForCloudWatchForCybersecurity" {
       "Effect": "Allow",
       "Principal": {
         "Service": [
-          "application-insights.amazonaws.com",
+          "application-insights.amazonaws.com"
         ]
       },
       "Action": "sts:AssumeRole"
