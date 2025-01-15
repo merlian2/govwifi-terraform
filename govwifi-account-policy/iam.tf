@@ -63,3 +63,26 @@ resource "aws_iam_role_policy_attachment" "iam_management" {
   policy_arn = aws_iam_policy.iam_management[0].arn
 }
 
+resource "aws_iam_role" "govwifi_cloudwatch_for_cybersecurity" {
+  name        = "GovwifiRoleForCloudWatchForCybersecurity"
+  description = "Allows Kinesis Firehose and Lambda to assume CloudWatch-AppInsights role to send data to Kinesis Data Stream from Cloudwatch Logs for CyberSecurity Team."
+  path  = "/"
+
+  assume_role_policy = <<POLICY
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "application-insights.amazonaws.com"
+        ]
+      },
+      "Action": "sts:AssumeRole"
+    }
+  ]
+}
+POLICY
+
+}
