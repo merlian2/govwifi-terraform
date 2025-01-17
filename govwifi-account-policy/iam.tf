@@ -63,6 +63,29 @@ resource "aws_iam_role_policy_attachment" "iam_management" {
   policy_arn = aws_iam_policy.iam_management[0].arn
 }
 
+
+
+resource "aws_iam_policy" "govwifi_cloudwatch_readonly_policy" {
+  name  = "GovwifiPolicyForCloudWatchForCybersecurity"
+  description = "Provides read-only access to Application Insights resources"
+
+  policy = <<EOF
+  {
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "applicationinsights:Describe*",
+                "applicationinsights:List*"
+            ],
+            "Resource": "*"
+        }
+    ]
+  }
+EOF
+}
+
 resource "aws_iam_role" "govwifi_cloudwatch_for_cybersecurity" {
   name        = "GovwifiRoleForCloudWatchForCybersecurity"
   description = "Allows Kinesis Firehose and Lambda to assume CloudWatch-AppInsights role to send data to Kinesis Data Stream from Cloudwatch Logs for CyberSecurity Team."
@@ -76,7 +99,8 @@ resource "aws_iam_role" "govwifi_cloudwatch_for_cybersecurity" {
       "Effect": "Allow",
       "Principal": {
         "Service": [
-          "application-insights.amazonaws.com"
+          "ec2.amazonaws.com",
+          "lambda.amazonaws.com"
         ]
       },
       "Action": "sts:AssumeRole"
@@ -85,4 +109,9 @@ resource "aws_iam_role" "govwifi_cloudwatch_for_cybersecurity" {
 }
 POLICY
 
+}
+
+resource "aws_iam_role_policy_attachment" "ec2_policy_attachment" {
+  role       = aws_iam_role.govwifi_cloudwatch_for_cybersecurity.name
+  policy_arn = aws_iam_policy.govwifi_cloudwatch_readonly_policy.arn
 }
