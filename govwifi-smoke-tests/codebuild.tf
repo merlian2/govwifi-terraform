@@ -15,6 +15,12 @@ resource "aws_codebuild_project" "smoke_tests" {
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
 
+    ## Use this to over ride the branch, unable to use the normal source method as accounts would need github access.
+    environment_variable {
+      name  = "BRANCH" 
+      value = "master"
+    }
+
     environment_variable {
       name  = "DOCKER_HUB_AUTHTOKEN_ENV"
       value = data.aws_secretsmanager_secret_version.docker_hub_authtoken.secret_string
@@ -163,7 +169,7 @@ resource "aws_cloudwatch_event_target" "trigger_smoke_tests" {
 
 # Enable scheduled smoke tests in production environment only
 resource "aws_cloudwatch_event_rule" "smoke_tests_schedule_rule" {
-  is_enabled          = var.env == "wifi" ? true : false
+  state          = var.env == "wifi" ? "ENABLED" : "DISABLED"
   name                = "smoke-tests-scheduled-build"
   schedule_expression = "cron(0/15 * * * ? *)"
 }
