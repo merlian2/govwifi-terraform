@@ -10,7 +10,7 @@ resource "aws_codebuild_project" "smoke_tests" {
 
   environment {
     compute_type                = "BUILD_GENERAL1_SMALL"
-    image                       = "aws/codebuild/standard:5.0"
+    image                       = "aws/codebuild/standard:7.0"
     type                        = "LINUX_CONTAINER"
     image_pull_credentials_type = "CODEBUILD"
     privileged_mode             = true
@@ -18,7 +18,7 @@ resource "aws_codebuild_project" "smoke_tests" {
     ## Use this to over ride the branch, unable to use the normal source method as accounts would need github access.
     environment_variable {
       name  = "BRANCH" 
-      value = "master"
+      value = "main"
     }
 
     environment_variable {
