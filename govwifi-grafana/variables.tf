@@ -67,7 +67,7 @@ variable "grafana_device_name" {
 variable "grafana_docker_version" {
   description = "Grafana Docker Version Number"
   type        = string
-  default     = "10.2.2"
+  default     = "11.5.2"
 }
 
 variable "capacity_notifications_arn" {
