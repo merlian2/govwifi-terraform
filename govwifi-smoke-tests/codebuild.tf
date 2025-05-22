@@ -22,6 +22,11 @@ resource "aws_codebuild_project" "smoke_tests" {
     }
 
     environment_variable {
+      name  = "REPO_NAME" 
+      value = var.smoke_tests_repo_name
+    }
+
+    environment_variable {
       name  = "DOCKER_HUB_AUTHTOKEN_ENV"
       value = data.aws_secretsmanager_secret_version.docker_hub_authtoken.secret_string
     }
@@ -132,16 +137,16 @@ resource "aws_codebuild_project" "smoke_tests" {
   }
 
   vpc_config {
-    vpc_id = aws_vpc.smoke_tests.id
+    vpc_id = var.vpc_id
 
     # IDs of the two PRIVATE subnets
     subnets = [
-      "${aws_subnet.smoke_tests_private_a.id}",
-      "${aws_subnet.smoke_tests_private_b.id}",
+      "${var.smoketest_subnet_private_a}",
+      "${var.smoketest_subnet_private_b}",
     ] #
 
     security_group_ids = [
-      "${aws_vpc.smoke_tests.default_security_group_id}"
+      "${var.default_security_group_id}"
     ] #The default vpc security group goes here. Lets all traffic in and out (this is what all the codebuild jobs do anyway)
   }
 

@@ -6,6 +6,6 @@ phases:
     - git clone -b $BRANCH https://github.com/GovWifi/$REPO_NAME.git
   build:
     commands:
-    - echo "Smoke-tests running"
+    - echo "Canary-tests running"
     - cd $REPO_NAME
-    - make test
+    - make test-radius
