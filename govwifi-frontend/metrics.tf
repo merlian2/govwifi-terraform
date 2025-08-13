@@ -68,16 +68,14 @@ resource "aws_cloudwatch_log_metric_filter" "radius_cannot_connect_to_api" {
   }
 }
 
-resource "aws_cloudwatch_log_metric_filter" "eap_too_many_session" {
-  name = "${var.env_name}-too-many-sessions"
-
-  pattern        = "\"Too many open sessions.\""
+resource "aws_cloudwatch_log_metric_filter" "eap_too_many_sessions" {
+  name = "${var.env_name}-eap-max-open-sessions"
   log_group_name = aws_cloudwatch_log_group.frontend.name
-
+  pattern        = "Too many open sessions"
   metric_transformation {
-    name          = "too-many-session"
+    name          = "eap-max-open-sessions"
     namespace     = local.frontend_metrics_namespace
-    value         = "1"
-    default_value = "0"
+    value         = 1
+    default_value = 0
   }
 }

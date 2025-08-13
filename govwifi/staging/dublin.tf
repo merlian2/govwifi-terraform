@@ -143,6 +143,8 @@ module "dublin_backend" {
   grafana_ip            = module.london_grafana.eip_public_ip
 
   db_storage_alarm_threshold = 19327342936
+  recovery_backups_enabled   = local.recovery_backups_enabled
+
 }
 
 # Emails ======================================================================
@@ -210,6 +212,8 @@ module "dublin_frontend" {
   # Instance-specific setup -------------------------------
   radius_instance_count      = 3
   radius_task_count          = 3
+  radius_task_count_max       = 3
+  radius_task_count_min       = 3
   enable_detailed_monitoring = false
 
   # eg. dns records are generated for radius(N).x.service.gov.uk
@@ -239,7 +243,7 @@ module "dublin_frontend" {
 
   pagerduty_notifications_arn = module.dublin_notifications.topic_arn
   critical_notifications_arn  = module.dublin_notifications.topic_arn
-  capacity_notifications_arn = module.dublin_notifications.topic_arn
+  capacity_notifications_arn  = module.dublin_notifications.topic_arn
 
   bastion_server_ip = module.london_backend.bastion_public_ip
 

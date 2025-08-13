@@ -1,0 +1,24 @@
+version: 0.2
+
+phases:
+  pre_build:
+    commands:
+    - echo "Starting ECS scale down process..."
+    - echo "Cluster $CLUSTER_NAME"
+    - echo "Service $SERVICE_NAME"
+    - echo "Set Desired Capacity $MIN_TASKS"
+    - aws --version
+  build:
+    commands:
+    - echo "Getting current service status..."
+    - aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query 'services[0].{DesiredCount:desiredCount,RunningCount:runningCount,PendingCount:pendingCount}'
+    - echo "Scaling down to $MIN_TASKS tasks..."
+    - aws ecs update-service --cluster $CLUSTER_NAME --service $SERVICE_NAME --desired-count $MIN_TASKS
+    - echo "Scale down command executed successfully"
+  post_build:
+    commands:
+    - echo "Waiting 30 seconds for status update..."
+    - sleep 30
+    - echo "Final service status:"
+    - aws ecs describe-services --cluster $CLUSTER_NAME --services $SERVICE_NAME --query 'services[0].{DesiredCount:desiredCount,RunningCount:runningCount,PendingCount:pendingCount}'
+    - echo "Scale down process completed"

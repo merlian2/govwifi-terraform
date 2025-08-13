@@ -60,7 +60,7 @@ resource "aws_cloudwatch_metric_alarm" "radius_cannot_connect_to_api" {
     var.critical_notifications_arn
   ]
 }
-
+#* I don't believe this works, the name and namespace, don't match the metric */
 resource "aws_cloudwatch_metric_alarm" "eap_outer_and_inner_identities_are_the_same" {
   alarm_name          = "${var.env_name}-${var.aws_region_name}-EAP Outer and inner identities are the same"
   alarm_description   = "WLC using the real identity for the anonymous identity - Radius Misconfiguration"
@@ -75,18 +75,23 @@ resource "aws_cloudwatch_metric_alarm" "eap_outer_and_inner_identities_are_the_s
   alarm_actions = [var.critical_notifications_arn]
 }
 
-## Radius has a limit of 4096 sessions, if a task is overloaded, this message will appear in the logs, indicating a task or loadbalancer failure.
-resource "aws_cloudwatch_metric_alarm" "eap_too_many_sessions" {
-  alarm_name          = "${var.env_name}-${var.aws_region_name}-EAP_too_many_open_sessions"
-  alarm_description  = "Radius has a limit of 4096 sessions, if task overloaded, this message will appear in logs, indicating task/loadbalancer failure, investigate, restart tasks"
-  comparison_operator = "GreaterThanThreshold"
-  namespace           = "LogMetrics"
-  metric_name         = aws_cloudwatch_log_metric_filter.eap_too_many_session.name
-  threshold           = 10
-  evaluation_periods  = 5
-  datapoints_to_alarm = 3
+## Radius has a limit of open sessions, if a task is overloaded, this message will appear in the logs, indicating a task or loadbalancer failure.
+resource "aws_cloudwatch_metric_alarm" "eap_too_many_sessions_high" {
+  alarm_name          = "${var.env_name}-${var.aws_region_name}-EAP-too-many-open-sessions"
+  alarm_description  = "Radius has a limit of EAP Open sessions, this should now trigger the auto scaler to spin up new tasks, monitor as this indicates increase in traffic or a radius problem."
+  metric_name         = aws_cloudwatch_log_metric_filter.eap_too_many_sessions.metric_transformation[0].name
+  threshold           = 1 #error in logs detected
+  statistic           = "Maximum"
+  comparison_operator = "GreaterThanOrEqualToThreshold"
+  datapoints_to_alarm = 1
+  evaluation_periods  = 5 # situation experienced for 5 periods (5 x 60 seconds)
   period              = 60
-  statistic           = "Sum"
-  treat_missing_data  = "missing"
-  alarm_actions = [var.critical_notifications_arn]
+  namespace           = aws_cloudwatch_log_metric_filter.eap_too_many_sessions.metric_transformation[0].namespace
+  treat_missing_data  = "notBreaching"
+  alarm_actions = [
+    aws_appautoscaling_policy.ecs_service_radius_frontend_load_scale_up_policy.arn,
+    var.critical_notifications_arn
+  ]
 }
+
+/* As it's not possible to determine when the error event will be over, the scale down will be a manual codebuild job */
